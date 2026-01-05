@@ -41,7 +41,7 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
     }
 
     Get.to(
-          () => PaymentScreen(
+      () => PaymentScreen(
         event: widget.event,
         numberOfTickets: viewModel.numberOfTickets,
         totalPrice: viewModel.totalPrice,
@@ -49,14 +49,19 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
         userEmail: _emailController.text.trim(),
         userPhone: _phoneController.text.trim(),
       ),
+      transition: Transition.rightToLeft,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
+    return PopScope(
+      canPop: true,
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        appBar: AppBar(
         title: const Text(
           'Book Tickets',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
@@ -89,6 +94,7 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
             ),
           );
         },
+      ),
       ),
     );
   }

@@ -157,7 +157,12 @@ class BookingHistoryScreen extends StatelessWidget {
             const SizedBox(height: 32),
             ElevatedButton(
               onPressed: () {
-                Get.offAll(() => const EventListingScreen());
+                Get.offAll(
+                  () => const EventListingScreen(),
+                  transition: Transition.fadeIn,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
@@ -217,107 +222,112 @@ class BookingHistoryScreen extends StatelessWidget {
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (booking.id != null)
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.red.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: Colors.red.withOpacity(0.5)),
-                    ),
-                    child: Text(
-                      'ID: ${booking.id}',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.red,
-                        fontWeight: FontWeight.bold,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (booking.id != null) ...[
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.red.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: Colors.red.withOpacity(0.5)),
+                          ),
+                          child: Text(
+                            'ID: ${booking.id}',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Colors.red,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                      ],
+                      Text(
+                        'Rs. ${booking.totalPrice}',
+                        style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
                       ),
-                    ),
+                    ],
                   ),
-                if (booking.id == null) const SizedBox.shrink(),
-                Row(
-                  children: [
-                    Text(
-                      'Rs. ${booking.totalPrice}',
-                      style: const TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    GestureDetector(
-                      onTap: () async {
-                        final confirmed = await showDialog<bool>(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            backgroundColor: Colors.grey[900],
-                            title: const Text(
-                              'Delete Booking',
+                ),
+                GestureDetector(
+                  onTap: () async {
+                    final confirmed = await showDialog<bool>(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        backgroundColor: Colors.grey[900],
+                        title: const Text(
+                          'Delete Booking',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        content: const Text(
+                          'Are you sure you want to delete this booking?',
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () =>
+                                Navigator.of(context).pop(false),
+                            child: const Text(
+                              'Cancel',
                               style: TextStyle(color: Colors.white),
                             ),
-                            content: const Text(
-                              'Are you sure you want to delete this booking?',
-                              style: TextStyle(color: Colors.grey),
+                          ),
+                          TextButton(
+                            onPressed: () =>
+                                Navigator.of(context).pop(true),
+                            child: const Text(
+                              'Delete',
+                              style: TextStyle(color: Colors.red),
                             ),
-                            actions: [
-                              TextButton(
-                                onPressed: () =>
-                                    Navigator.of(context).pop(false),
-                                child: const Text(
-                                  'Cancel',
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                              ),
-                              TextButton(
-                                onPressed: () =>
-                                    Navigator.of(context).pop(true),
-                                child: const Text(
-                                  'Delete',
-                                  style: TextStyle(color: Colors.red),
-                                ),
-                              ),
-                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                    if (confirmed == true && booking.id != null) {
+                      final success = await viewModel.deleteBooking(
+                        booking.id!,
+                      );
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              success
+                                  ? 'Booking deleted successfully'
+                                  : 'Failed to delete booking',
+                            ),
+                            backgroundColor: success
+                                ? Colors.green
+                                : Colors.red,
                           ),
                         );
-                        if (confirmed == true && booking.id != null) {
-                          final success = await viewModel.deleteBooking(
-                            booking.id!,
-                          );
-                          if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  success
-                                      ? 'Booking deleted successfully'
-                                      : 'Failed to delete booking',
-                                ),
-                                backgroundColor: success
-                                    ? Colors.green
-                                    : Colors.red,
-                              ),
-                            );
-                          }
-                        }
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.red.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Icon(
-                          Icons.delete_outline,
-                          color: Colors.red,
-                          size: 20,
-                        ),
-                      ),
+                      }
+                    }
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.red.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                  ],
+                    child: const Icon(
+                      Icons.delete_outline,
+                      color: Colors.red,
+                      size: 20,
+                    ),
+                  ),
                 ),
               ],
             ),

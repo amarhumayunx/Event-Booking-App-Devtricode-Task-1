@@ -218,7 +218,12 @@ class _PaymentScreenState extends State<PaymentScreen> {
       await Future.delayed(const Duration(milliseconds: 1500));
 
       if (mounted) {
-        Get.off(() => BookingConfirmationScreen(booking: createdBooking));
+        Get.offAll(
+          () => BookingConfirmationScreen(booking: createdBooking),
+          transition: Transition.zoom,
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeInOut,
+        );
       }
     } catch (e) {
       final errorMessage = _parseErrorMessage(e);
@@ -235,9 +240,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
+    return PopScope(
+      canPop: true,
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        appBar: AppBar(
         title: const Text(
           'Payment',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
@@ -272,6 +279,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
             ],
           ),
         ),
+      ),
       ),
     );
   }

@@ -10,84 +10,96 @@ import 'booking_history_screen.dart';
 class EventListingScreen extends StatelessWidget {
   const EventListingScreen({super.key});
 
-  Future<bool> _onWillPop() async {
-    // Show exit confirmation dialog
-    final shouldExit = await Get.dialog<bool>(
-      AlertDialog(
-        backgroundColor: Colors.grey[900],
-        title: const Text(
-          'Exit App',
-          style: TextStyle(color: Colors.white),
-        ),
-        content: const Text(
-          'Are you sure you want to exit?',
-          style: TextStyle(color: Colors.grey),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(result: false),
-            child: const Text('Cancel', style: TextStyle(color: Colors.white)),
+  Future<void> _showExitDialog() async {
+    final shouldExit =
+        await Get.dialog<bool>(
+          AlertDialog(
+            backgroundColor: Colors.grey[900],
+            title: const Text(
+              'Exit App',
+              style: TextStyle(color: Colors.white),
+            ),
+            content: const Text(
+              'Are you sure you want to exit?',
+              style: TextStyle(color: Colors.grey),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Get.back(result: false),
+                child: const Text(
+                  'Cancel',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+              TextButton(
+                onPressed: () => Get.back(result: true),
+                child: const Text('Exit', style: TextStyle(color: Colors.red)),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () => Get.back(result: true),
-            child: const Text('Exit', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
-    ) ?? false;
+        ) ??
+        false;
 
     if (shouldExit) {
       SystemNavigator.pop();
     }
-
-    return false;
   }
 
   @override
   Widget build(BuildContext context) {
     Get.put(EventListingViewModel());
 
-    return WillPopScope(
-        onWillPop: _onWillPop,
-        child: Scaffold(
-          backgroundColor: Colors.black,
-          appBar: AppBar(
-            title: const Text(
-              'Events',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          _showExitDialog();
+        }
+      },
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        appBar: AppBar(
+          title: const Text(
+            'Events',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
-            backgroundColor: Colors.black,
-            elevation: 0,
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.search, color: Colors.white),
-                onPressed: () {},
-              ),
-              IconButton(
-                icon: const Icon(Icons.history, color: Colors.white),
-                onPressed: () {
-                  Get.to(() => BookingHistoryScreen(userEmail: UserService.currentUserEmail));
-                },
-                tooltip: 'Booking History',
-              ),
-            ],
           ),
-          body: GetBuilder<EventListingViewModel>(
-            builder: (viewModel) => _buildBody(context, viewModel),
-          ),
+          backgroundColor: Colors.black,
+          elevation: 0,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.search, color: Colors.white),
+              onPressed: () {},
+            ),
+            IconButton(
+              icon: const Icon(Icons.history, color: Colors.white),
+              onPressed: () {
+                Get.to(
+                  () => BookingHistoryScreen(
+                    userEmail: UserService.currentUserEmail,
+                  ),
+                  transition: Transition.rightToLeft,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                );
+              },
+              tooltip: 'Booking History',
+            ),
+          ],
         ),
+        body: GetBuilder<EventListingViewModel>(
+          builder: (viewModel) => _buildBody(context, viewModel),
+        ),
+      ),
     );
-    }
+  }
 
   Widget _buildBody(BuildContext context, EventListingViewModel viewModel) {
     if (viewModel.isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(color: Colors.red),
-      );
+      return const Center(child: CircularProgressIndicator(color: Colors.red));
     }
 
     if (viewModel.hasError) {
@@ -99,12 +111,16 @@ class EventListingScreen extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               'Error loading events',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.white),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(color: Colors.white),
             ),
             const SizedBox(height: 8),
             Text(
               viewModel.errorMessage ?? 'Unknown error',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
@@ -120,7 +136,10 @@ class EventListingScreen extends StatelessWidget {
 
     if (!viewModel.hasEvents) {
       return const Center(
-        child: Text('No events available', style: TextStyle(color: Colors.white)),
+        child: Text(
+          'No events available',
+          style: TextStyle(color: Colors.white),
+        ),
       );
     }
 
@@ -139,7 +158,10 @@ class EventListingScreen extends StatelessWidget {
               onRefresh: () => viewModel.loadEvents(),
               color: Colors.red,
               child: ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 itemCount: eventsToShow.length,
                 itemBuilder: (context, index) {
                   final event = eventsToShow[index];
@@ -166,13 +188,16 @@ class EventListingScreen extends StatelessWidget {
             final category = entry.key;
             final events = entry.value;
             return _buildCategorySection(context, category, events);
-          }).toList(),
+          }),
         ],
       ),
     );
   }
 
-  Widget _buildCategoryChips(BuildContext context, EventListingViewModel viewModel) {
+  Widget _buildCategoryChips(
+    BuildContext context,
+    EventListingViewModel viewModel,
+  ) {
     return Container(
       height: 40,
       margin: const EdgeInsets.only(left: 16),
@@ -182,7 +207,8 @@ class EventListingScreen extends StatelessWidget {
         itemBuilder: (context, index) {
           final isAll = index == 0;
           final category = isAll ? 'All' : viewModel.categories[index - 1];
-          final isSelected = viewModel.selectedCategory == category ||
+          final isSelected =
+              viewModel.selectedCategory == category ||
               (isAll && viewModel.selectedCategory == 'All');
 
           return Padding(
@@ -192,7 +218,10 @@ class EventListingScreen extends StatelessWidget {
                 viewModel.filterByCategory(category);
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: isSelected ? Colors.white : Colors.grey[850],
                   borderRadius: BorderRadius.circular(20),
@@ -213,7 +242,9 @@ class EventListingScreen extends StatelessWidget {
                       style: TextStyle(
                         color: isSelected ? Colors.black : Colors.white,
                         fontSize: 14,
-                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                        fontWeight: isSelected
+                            ? FontWeight.bold
+                            : FontWeight.normal,
                       ),
                     ),
                   ],
@@ -226,7 +257,11 @@ class EventListingScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCategorySection(BuildContext context, String category, List<Event> events) {
+  Widget _buildCategorySection(
+    BuildContext context,
+    String category,
+    List<Event> events,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -271,10 +306,19 @@ class EventListingScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildHorizontalEventCard(BuildContext context, Event event, bool isFirst) {
+  Widget _buildHorizontalEventCard(
+    BuildContext context,
+    Event event,
+    bool isFirst,
+  ) {
     return GestureDetector(
       onTap: () {
-        Get.to(() => EventDetailsScreen(event: event));
+        Get.to(
+          () => EventDetailsScreen(event: event),
+          transition: Transition.fadeIn,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
       },
       child: Container(
         width: 140,
@@ -294,30 +338,41 @@ class EventListingScreen extends StatelessWidget {
                   children: [
                     event.image.isNotEmpty && event.image != 'image ${event.id}'
                         ? Image.network(
-                      event.image,
-                      width: double.infinity,
-                      height: double.infinity,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          color: Colors.grey[850],
-                          child: const Center(
-                            child: Icon(Icons.event, size: 50, color: Colors.grey),
-                          ),
-                        );
-                      },
-                    )
+                            event.image,
+                            width: double.infinity,
+                            height: double.infinity,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                color: Colors.grey[850],
+                                child: const Center(
+                                  child: Icon(
+                                    Icons.event,
+                                    size: 50,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              );
+                            },
+                          )
                         : Container(
-                      color: Colors.grey[850],
-                      child: const Center(
-                        child: Icon(Icons.event, size: 50, color: Colors.grey),
-                      ),
-                    ),
+                            color: Colors.grey[850],
+                            child: const Center(
+                              child: Icon(
+                                Icons.event,
+                                size: 50,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ),
                     Positioned(
                       top: 8,
                       right: 8,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.black.withOpacity(0.7),
                           borderRadius: BorderRadius.circular(4),
@@ -337,7 +392,10 @@ class EventListingScreen extends StatelessWidget {
                         bottom: 8,
                         left: 8,
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 3,
+                          ),
                           decoration: BoxDecoration(
                             color: event.availableSeats > 0
                                 ? Colors.orange.withOpacity(0.9)
@@ -378,7 +436,12 @@ class EventListingScreen extends StatelessWidget {
   Widget _buildVerticalEventCard(BuildContext context, Event event) {
     return GestureDetector(
       onTap: () {
-        Get.to(() => EventDetailsScreen(event: event));
+        Get.to(
+          () => EventDetailsScreen(event: event),
+          transition: Transition.fadeIn,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
@@ -404,19 +467,24 @@ class EventListingScreen extends StatelessWidget {
                   topLeft: Radius.circular(12),
                   bottomLeft: Radius.circular(12),
                 ),
-                child: event.image.isNotEmpty && event.image != 'image ${event.id}'
+                child:
+                    event.image.isNotEmpty && event.image != 'image ${event.id}'
                     ? Image.network(
-                  event.image,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return const Center(
-                      child: Icon(Icons.event, size: 50, color: Colors.grey),
-                    );
-                  },
-                )
+                        event.image,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return const Center(
+                            child: Icon(
+                              Icons.event,
+                              size: 50,
+                              color: Colors.grey,
+                            ),
+                          );
+                        },
+                      )
                     : const Center(
-                  child: Icon(Icons.event, size: 50, color: Colors.grey),
-                ),
+                        child: Icon(Icons.event, size: 50, color: Colors.grey),
+                      ),
               ),
             ),
             Expanded(
@@ -438,23 +506,37 @@ class EventListingScreen extends StatelessWidget {
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        Icon(Icons.calendar_today, size: 14, color: Colors.grey[600]),
+                        Icon(
+                          Icons.calendar_today,
+                          size: 14,
+                          color: Colors.grey[600],
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           event.date,
-                          style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 12,
+                          ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 6),
                     Row(
                       children: [
-                        Icon(Icons.location_on, size: 14, color: Colors.grey[600]),
+                        Icon(
+                          Icons.location_on,
+                          size: 14,
+                          color: Colors.grey[600],
+                        ),
                         const SizedBox(width: 4),
                         Expanded(
                           child: Text(
                             event.location,
-                            style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 12,
+                            ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -474,21 +556,28 @@ class EventListingScreen extends StatelessWidget {
                           ),
                         ),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
                             color: event.availableSeats > 0
                                 ? Colors.green.withOpacity(0.2)
                                 : Colors.red.withOpacity(0.2),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: event.availableSeats > 0 ? Colors.green : Colors.red,
+                              color: event.availableSeats > 0
+                                  ? Colors.green
+                                  : Colors.red,
                             ),
                           ),
                           child: Text(
                             '${event.availableSeats} seats',
                             style: TextStyle(
                               fontSize: 11,
-                              color: event.availableSeats > 0 ? Colors.green : Colors.red,
+                              color: event.availableSeats > 0
+                                  ? Colors.green
+                                  : Colors.red,
                               fontWeight: FontWeight.bold,
                             ),
                           ),

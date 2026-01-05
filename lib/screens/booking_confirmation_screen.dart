@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import '../models/booking.dart';
 import 'event_listing_screen.dart';
@@ -10,16 +9,21 @@ class BookingConfirmationScreen extends StatelessWidget {
 
   const BookingConfirmationScreen({super.key, required this.booking});
 
-  Future<bool> _onWillPop() async {
-    // Clear all previous routes and go to home screen
-    Get.offAll(() => const EventListingScreen());
-    return false;
-  }
-
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: _onWillPop,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          // Clear all previous routes and go to home screen
+          Get.offAll(
+            () => const EventListingScreen(),
+            transition: Transition.fadeIn,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+          );
+        }
+      },
       child: Scaffold(
         backgroundColor: Colors.black,
         body: SafeArea(
@@ -53,11 +57,7 @@ class BookingConfirmationScreen extends StatelessWidget {
         shape: BoxShape.circle,
         border: Border.all(color: Colors.green, width: 3),
       ),
-      child: const Icon(
-        Icons.check_circle,
-        size: 70,
-        color: Colors.green,
-      ),
+      child: const Icon(Icons.check_circle, size: 70, color: Colors.green),
     );
   }
 
@@ -76,10 +76,7 @@ class BookingConfirmationScreen extends StatelessWidget {
         const SizedBox(height: 16),
         Text(
           'Your tickets have been booked successfully',
-          style: TextStyle(
-            fontSize: 16,
-            color: Colors.grey[400],
-          ),
+          style: TextStyle(fontSize: 16, color: Colors.grey[400]),
           textAlign: TextAlign.center,
         ),
       ],
@@ -99,17 +96,15 @@ class BookingConfirmationScreen extends StatelessWidget {
           if (booking.id != null) ...[
             _buildBookingId(),
             const SizedBox(height: 16),
-            Container(height: 1, color: Colors.grey[800]),
-            const SizedBox(height: 16),
           ],
+          _buildTotalPrice(),
+          const SizedBox(height: 16),
+          Container(height: 1, color: Colors.grey[800]),
+          const SizedBox(height: 16),
           _buildEventTitle(),
           const SizedBox(height: 20),
           _buildEventDetails(),
           const SizedBox(height: 16),
-          Container(height: 1, color: Colors.grey[800]),
-          const SizedBox(height: 16),
-          _buildTotalPrice(),
-          const SizedBox(height: 20),
           Container(height: 1, color: Colors.grey[800]),
           const SizedBox(height: 16),
           _buildUserDetails(),
@@ -130,7 +125,11 @@ class BookingConfirmationScreen extends StatelessWidget {
           ),
           child: Row(
             children: [
-              const Icon(Icons.confirmation_number, color: Colors.red, size: 16),
+              const Icon(
+                Icons.confirmation_number,
+                color: Colors.red,
+                size: 16,
+              ),
               const SizedBox(width: 6),
               Text(
                 'ID: ${booking.id}',
@@ -167,7 +166,11 @@ class BookingConfirmationScreen extends StatelessWidget {
         const SizedBox(height: 12),
         _buildDetailRow(Icons.location_on, 'Location', booking.eventLocation),
         const SizedBox(height: 12),
-        _buildDetailRow(Icons.confirmation_number, 'Tickets', '${booking.numberOfTickets}'),
+        _buildDetailRow(
+          Icons.confirmation_number,
+          'Tickets',
+          '${booking.numberOfTickets}',
+        ),
       ],
     );
   }
@@ -190,10 +193,7 @@ class BookingConfirmationScreen extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 12,
-                ),
+                style: TextStyle(color: Colors.grey[600], fontSize: 12),
               ),
               const SizedBox(height: 2),
               Text(
@@ -265,10 +265,7 @@ class BookingConfirmationScreen extends StatelessWidget {
         Expanded(
           child: Text(
             value,
-            style: TextStyle(
-              color: Colors.grey[400],
-              fontSize: 14,
-            ),
+            style: TextStyle(color: Colors.grey[400], fontSize: 14),
           ),
         ),
       ],
@@ -283,7 +280,12 @@ class BookingConfirmationScreen extends StatelessWidget {
           height: 54,
           child: ElevatedButton(
             onPressed: () {
-              Get.offAll(() => const EventListingScreen());
+              Get.offAll(
+                () => const EventListingScreen(),
+                transition: Transition.fadeIn,
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+              );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
@@ -294,10 +296,7 @@ class BookingConfirmationScreen extends StatelessWidget {
             ),
             child: const Text(
               'Browse More Events',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ),
         ),
@@ -307,7 +306,12 @@ class BookingConfirmationScreen extends StatelessWidget {
           height: 54,
           child: OutlinedButton(
             onPressed: () {
-              Get.offAll(() => BookingHistoryScreen(userEmail: booking.userEmail));
+              Get.offAll(
+                () => BookingHistoryScreen(userEmail: booking.userEmail),
+                transition: Transition.rightToLeft,
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+              );
             },
             style: OutlinedButton.styleFrom(
               side: const BorderSide(color: Colors.red, width: 2),
@@ -318,10 +322,7 @@ class BookingConfirmationScreen extends StatelessWidget {
             ),
             child: const Text(
               'View Booking History',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ),
         ),

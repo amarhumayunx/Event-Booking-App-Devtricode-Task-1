@@ -10,9 +10,11 @@ class EventDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: CustomScrollView(
+    return PopScope(
+      canPop: true,
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        body: CustomScrollView(
         slivers: [
           SliverAppBar(
             expandedHeight: 350.0,
@@ -151,7 +153,12 @@ class EventDetailsScreen extends StatelessWidget {
                     child: ElevatedButton(
                       onPressed: event.availableSeats > 0
                           ? () {
-                        Get.to(() => TicketBookingScreen(event: event));
+                        Get.to(
+                          () => TicketBookingScreen(event: event),
+                          transition: Transition.upToDown,
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                        );
                       }
                           : null,
                       style: ElevatedButton.styleFrom(
@@ -251,6 +258,7 @@ class EventDetailsScreen extends StatelessWidget {
             ),
           ),
         ],
+      ),
       ),
     );
   }
