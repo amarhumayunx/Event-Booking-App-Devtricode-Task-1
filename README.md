@@ -171,7 +171,7 @@ This project is private and not licensed for public use.
 
 ## 👤 Author
 
-**Amar Humayun**
+**Muhammad Humayun Amar**
 
 - GitHub: [@amarhumayunx](https://github.com/amarhumayunx)
 
