@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:306920833692:android:cf7b830a24d6cd19262359",
         "android_client_info": {
-          "package_name": "com.example.eventbookingapp"
+          "package_name": "com.eventbooking.app"
         }
       },
       "oauth_client": [],

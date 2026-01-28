@@ -125,11 +125,11 @@ lib/
 ### Android
 - Minimum SDK: Check `android/app/build.gradle.kts`
 - Target SDK: Check `android/app/build.gradle.kts`
-- Package Name: `com.example.eventbookingapp`
+- Package Name: `com.eventbooking.app`
 
 ### iOS
 - Minimum iOS Version: Check `ios/Podfile`
-- Bundle Identifier: `com.example.eventbookingapp`
+- Bundle Identifier: `com.eventbooking.app`
 
 ## 📱 Building for Release
 
